@@ -1,0 +1,16 @@
+{% extends 'core/base.html' %}
+
+{% block title %} Home {% endblock %}
+
+{% block content %}
+    <div class="mt-10">
+        <h1> All task </h1>
+        <div>
+            {% for task in tasks %}
+                {{task.name}}
+
+            {% endfor %}
+        </div>
+    </div>
+
+{% endblock %}

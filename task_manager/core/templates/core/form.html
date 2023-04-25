@@ -1,0 +1,14 @@
+{% extends 'core/base.html' %}
+
+{% block title %} Create Task {% endblock %}
+
+{% block content %}
+    <div class="bg-gray-300 flex flex-col items-center p-6 ">
+        <form action="." method="POST">
+            {% csrf_token %}
+            {{form.as_p}}
+
+            <button class="bg-teal-500 px-2 py-4 mt-4 text-white rounded-xl hover:bg-teal-800"> Create Task</button>
+        </form>
+    </div>
+{% endblock %}
