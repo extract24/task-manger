@@ -1,0 +1,22 @@
+{% extends 'core/base.html' %}
+{% block title %} Messages {% endblock %}
+
+{% block content %}
+    <h1 class="text-2xl font-bold mb-4">Task Messages</h1>
+    <p class="mb-4"><strong>Task:</strong> {{ task.name }}</p>
+    <div class="messages w-1/6">
+        {% for message in messages %}
+            <div class="message p-4 rounded-xl mb-4 {% if message.sender == request.user %} bg-green-500 text-white place-self-end{% else %} bg-gray-200 text-gray-800{% endif %}">
+                <p>{{ message.message }}</p>
+                <span class="timestamp text-xs text-gray-500">@{{message.sender}} {{ message.sent_at|date:"F d, Y, H:i A" }}</span>
+            </div>
+        {% endfor %}
+        <form method="post" action="{% url 'conversation:send_messages' pk=task.id %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="bg-blue-500 text-white font-bold py-2 px-4 rounded mt-4  place-self-end shover:bg-blue-700">Send</button>
+            <a href="{% url 'core:detail' task.id %}"  class="bg-yellow-500 text-white font-bold py-2 px-4 rounded mt-4"> Back</a>
+        </form>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+    <h1>Inbox</h1>
+    {% if conversations %}
+        <ul>
+        {% for conversation in conversations %}
+            <li>
+                <p>Task: {{ conversation.task }}</p>
+                <p>From: {{ conversation.sender }}</p>
+                <p>Message: {{ conversation.message }}</p>
+                <p>Sent: {{ conversation.sent_at }}</p>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>Your inbox is empty.</p>
+    {% endif %}
+{% endblock %}

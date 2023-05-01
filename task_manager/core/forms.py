@@ -1,4 +1,4 @@
-from django.forms import ModelForm, TextInput, Textarea, DateInput, ValidationError, EmailInput, PasswordInput
+from django.forms import ModelForm, TextInput, Textarea, DateInput, ValidationError
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django import forms
@@ -8,7 +8,7 @@ from datetime import date
 class TaskForm(ModelForm):
     class Meta:
         model = Task
-        fields = ['name', 'description', 'due_date', 'task_status']
+        fields = ['name', 'description', 'due_date', 'task_status','start_date', 'completed_date']
 
         widgets = {
             'name': TextInput(attrs={'placeholder':'Task Title', 'class': 'w-full px-4 py-6 mt-4'}),
@@ -22,6 +22,27 @@ class TaskForm(ModelForm):
             if d < date.today():
                 raise ValidationError('Due date cannot be in the past')
             return d
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.fields['title'].widget.attrs['class'] = 'form-control'
+            self.fields['description'].widget.attrs['class'] = 'form-control'
+            self.fields['task_status'].widget.attrs['class'] = 'form-control'
+
+class ChangeStatusForm(ModelForm):
+    class Meta:
+        model = Task
+        fields = ('task_status', )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['task_status'].widget.attrs['class'] = 'form-control'
+
+class AssignUserForm(ModelForm):
+    class Meta:
+        model = Task
+        fields = ('assign_user', )
+
 
 class SignUpForm(UserCreationForm):
     class Meta:

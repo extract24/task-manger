@@ -1,0 +1,177 @@
+{% extends 'core/base.html' %}
+
+{% block title %} Dashboard {% endblock %}
+
+{% block content %}
+<div class="container bg-gray-200 mx-auto p-6 flex flex-col items-center text-center">
+    <div class="box mx-auto items-center">
+        <h1 class="text-3xl font-bold my-4">Task Manager Dashboard</h1>
+        <div class="my-4">
+        <h2 class="text-xl font-bold mb-2">Overview</h2>
+        <p class="mb-4">The dashboard provides an overview of all tasks created by and assigned to the user, as well as tasks completed by the user and tasks created by the user but completed by another user.</p>
+    </div>
+    <br class="">
+  
+    <div class="my-4 p-4">
+        <h2 class="text-xl font-bold mb-2">Tasks Created by User</h2>
+        <table class="bg-white border border-red-500 w-full">
+            <thead>
+                <tr>
+                <th class="border px-4 py-2 text-left">Task name</th>
+                <th class="border px-4 py-2 text-left">Date created</th>
+                <th class="border px-4 py-2 text-left">Assigned to</th>
+                <th class="border px-4 py-2 text-left">Status</th>
+                <th class="border px-4 py-2 text-left">Action</th>
+                </tr>
+            </thead>
+        
+        <tbody class="divide-y divide-gray-300">
+        {% for task in task_created %}
+        <tr>
+            <td class="border px-4 py-2">{{ task.name }}</td>
+            <td class="border px-4 py-2">{{ task.created_at }}</td>
+            <td class="border px-4 py-2">{{ task.assign_user.username }}</td>
+            <td class="border px-4 py-2">{{ task.get_task_status_display }}</td>
+            <td class="border px-4 py-2"><a href="{% url 'core:detail' task.id %}">View/Edit/Delete/Assign</a></td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td class="border px-4 py-2 text-center" colspan="5">No tasks found.</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+    </div>
+
+    <div class="my-4">
+        <h2 class="text-xl font-bold mb-2">Tasks Assigned to User</h2>
+        <table class="w-full border-collapse bg-white">
+            <thead>
+                <tr>
+                    <th class="border px-4 py-2 text-left">Task name</th>
+                    <th class="border px-4 py-2 text-left">Date created</th>
+                    <th class="border px-4 py-2 text-left">Created by</th>
+                    <th class="border px-4 py-2 text-left">Status</th>
+                    <th class="border px-4 py-2 text-left">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for task in task_assign_to_user %}
+            <tr>
+                <td class="border px-4 py-2">{{ task.name }}</td>
+                <td class="border px-4 py-2">{{ task.created_at }}</td>
+                <td class="border px-4 py-2">{{ task.assign_user.username }}</td>
+                <td class="border px-4 py-2">{{ task.get_task_status_display }}</td>
+                <td class="border px-4 py-2"><a href="{% url 'core:detail' task.id %}">View</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td class="border px-4 py-2 text-center" colspan="5">No tasks found.</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="my-4">
+        <h2 class="text-xl font-bold mb-2">Tasks Created by Me but Assigned to Other User</h2>
+        <table class="w-full border-collapse bg-white">
+            <thead>
+                <tr>
+                    <th class="border px-4 py-2 text-left">Task name</th>
+                    <th class="border px-4 py-2 text-left">Date created</th>
+                    <th class="border px-4 py-2 text-left">Assigned User</th>
+                    <th class="border px-4 py-2 text-left">Start date</th>
+                    <th class="border px-4 py-2 text-left">Due date</th>
+                    <th class="border px-4 py-2 text-left">Status</th>
+                    <th class="border px-4 py-2 text-left">Action</th>
+                </tr>
+            </thead>
+        <tbody>
+        {% for task in tasks_created_by_user_but_assigned_to_other_user %}
+        <tr>
+            <td class="border px-4 py-2">{{ task.name }}</td>
+            <td class="border px-4 py-2">{{ task.created_at }}</td>
+            <td class="border px-4 py-2">{{ task.assign_user.username }}</td>
+            <td class="border px-4 py-2">{{ task.start_date }}</td>
+            <td class="border px-4 py-2">{{ task.due_date }}</td>
+            <td class="border px-4 py-2">{{ task.get_task_status_display }}</td>
+            <td class="border px-4 py-2"><a href="{% url 'core:detail' task.id %}">View/Edit/Delete/</a></td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td class="border px-4 py-2 text-center" colspan="7">No tasks found.</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+    </div>
+
+    <div class="my-4">
+        <h2 class="text-xl font-bold mb-2">Tasks Completed by Me</h2>
+        <table class="w-full border-collapse bg-white">
+            <thead>
+                <tr>
+                    <th class="border px-4 py-2 text-left">Task name</th>
+                    <th class="border px-4 py-2 text-left">Date created</th>
+                    <th class="border px-4 py-2 text-left">Completion date</th>
+                    <th class="border px-4 py-2 text-left">Status</th>
+                    <th class="border px-4 py-2 text-left">Action</th>
+                </tr>
+            </thead>
+        <tbody>
+        {% for task in task_completed_by_user %}
+        <tr>
+            <td class="border px-4 py-2">{{ task.name }}</td>
+            <td class="border px-4 py-2">{{ task.created_at }}</td>
+            <td class="border px-4 py-2">{{ task.completed_date }}</td>
+            <td class="border px-4 py-2">{{ task.get_task_status_display }}</td>
+            <td class="border px-4 py-2"><a href="{% url 'core:detail' task.id %}">View/Complete</a></td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td class="border px-4 py-2 text-center" colspan="5">No tasks found.</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+    </div>
+
+    <div class="my-4">
+        <h2 class="text-xl font-bold mb-2">Tasks created by Me but completed by other user</h2>
+        <table class="w-full border-collapse bg-white">
+            <thead>
+                <tr>
+                    <th class="border px-4 py-2 text-left">Task name</th>
+                    <th class="border px-4 py-2 text-left">Date created</th>
+                    <th class="border px-4 py-2 text-left">Completed by</th>
+                    <th class="border px-4 py-2 text-left">Completed Date</th>
+                    <th class="border px-4 py-2 text-left">Status</th>
+                    <th class="border px-4 py-2 text-left">Action</th>
+                </tr>
+            </thead>
+        <tbody>
+        {% for task in task_completed_by_other_user %}
+        <tr>
+            <td class="border px-4 py-2">{{ task.name }}</td>
+            <td class="border px-4 py-2">{{ task.created_at }}</td>
+            <td class="border px-4 py-2">{{ task.assign_user.username }}</td>
+            <td class="border px-4 py-2">{{ task.completed_date }}</td>
+            <td class="border px-4 py-2">{{ task.get_task_status_display }}</td>
+            <td class="border px-4 py-2"><a href="{% url 'core:detail' task.id %}">View/Edit/Delete/</a></td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td class="border px-4 py-2 text-center" colspan="6">No tasks found.</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+    </div>
+
+</div>
+
+
+
+{% endblock %}
+
