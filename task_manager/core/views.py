@@ -82,33 +82,67 @@ def dashboard(request):
 @login_required
 def detail(request, pk):
     task = get_object_or_404(Task, pk=pk)
+
+    if task.created_by == request.user:
+        contact_user = 'Contact Assign User'
+    
+    elif task.assign_user == request.user:
+        contact_user = 'Contact task creator'
+
+    task_duration = task.duration()
+
+ 
+    task_duration_value = task_duration.seconds // 60
+    task_duration_seconds = task_duration.seconds % 60
+
+    task_duration_hours = task_duration_value // 60
+    task_duration_minutes = task_duration_value % 60
+
+
     context = {
-        'task': task
+        'task': task,
+        'contact_user': contact_user,
+        'task_duration': task_duration,
+        'task_duration_hours': task_duration_hours,
+        'task_duration_minutes': task_duration_minutes,
+        'task_duration_seconds': task_duration_seconds,
     }
     return render(request, 'core/detail.html', context)
 
 @login_required
 def delete_task(request, pk):
     task = get_object_or_404(Task, pk=pk, created_by=request.user)
-    task.delete()
-    return redirect('core:dashboard')
+
+    if task.task_status != 'CO':
+        task.delete()
+        return redirect('core:dashboard')
+    else:
+        messages.warning(request, 'Cannot delete completed task')
+        return redirect('core:detail', task.id)
 
 @login_required
 def edit_task(request, pk):
     task = get_object_or_404(Task, pk=pk, created_by=request.user)
-    if request.method == 'POST':
-        form = TaskForm(request.POST, instance=task)
 
-        if form.is_valid():
-            form.save()
-            return redirect('core:detail', task.id)
-    
-    else:
-        form = TaskForm(instance=task)
+    if task.task_status != 'CO':
+        if request.method == 'POST':
+            form = TaskForm(request.POST, instance=task)
 
-        for field in ['completed_date', 'start_date', 'task_status']:
-            form.fields.pop(field)
+            if form.is_valid():
+                form.save()
+                return redirect('core:detail', task.id)
+        else:
+            form = TaskForm(instance=task)
+
+            for field in ['completed_date', 'start_date', 'task_status']:
+                form.fields.pop(field)
         
+
+    else:
+        messages.warning(request, 'Cannot edit task that has been completed')
+        return redirect('core:detail', task.id)
+    
+
 
     context = {
         'form':form,
@@ -121,11 +155,15 @@ def completed(request, pk):
 
     task = get_object_or_404(Task, pk=pk, assign_user=request.user)
     if task.assign_user:
-        task.task_status = 'CO'
-        task.completed_date= timezone.now()
-        task.save()
-        messages.success(request, f"Task has been completed")
-        return redirect('core:detail', task.id)
+        if task.response == 'A':
+            task.task_status = 'CO'
+            task.completed_date= timezone.now()
+            task.save()
+            messages.success(request, f"Task has been completed")
+            return redirect('core:detail', task.id)
+        else:
+            messages.warning(request, 'Task cannot be completed without the task not be accepted')
+            return redirect("core:detail", task.id)
 
     else: 
         messages.warning(request, f'The task canot be completed unless it is assign to a user')
@@ -134,23 +172,27 @@ def completed(request, pk):
 @login_required
 def assign_user(request, pk):
     task = get_object_or_404(Task, pk=pk, created_by=request.user)
-    
-    if request.method == 'POST':
-        form = AssignUserForm(request.POST)
 
-        if form.is_valid():
-            task.assign_user = form.cleaned_data['assign_user']
-            task.task_status = 'PR'
-            task.start_date = timezone.now()
-            task.save()
-            messages.success(request, f'{task.assign_user} has been assigned to {task.name}.')
-            return redirect('core:detail', task.id)
-    
+    if task.start_date:
+        messages.warning(request, 'Cannot assign task that has been assign already')
+        return redirect('core:detail', task.id)
     else:
-        form= AssignUserForm(initial={'assign_user': task.assign_user})
+    
+        if request.method == 'POST':
+            form = AssignUserForm(request.POST)
+
+            if form.is_valid():
+                task.assign_user = form.cleaned_data['assign_user']
+                task.task_status = 'PR'
+                task.response = 'P'
+                task.save()
+                messages.success(request, f'{task.assign_user} has been assigned to {task.name}.')
+                return redirect('core:detail', task.id)
+        
+        else:
+            form= AssignUserForm(initial={'assign_user': task.assign_user})
     context = {
         'form': form,
         'task': task
     }
     return render(request, 'core/assign_user.html', context)
-

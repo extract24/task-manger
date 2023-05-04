@@ -1,0 +1,31 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+    <div>
+        <h1>{{task.name}}</h1>
+        <p>{{task.description}}</p>
+
+        <div>
+            {% if task.response == 'P' %}
+                <form action="." method="POST">
+                    {% csrf_token %}
+                    <button type="submit" name="response" value="accept"> Accept</button>
+                    <button type="submit" name="response" value="reject">Reject</button>
+                </form>
+            {% else %}
+                <p> Response: {{task.get_response_display}}</p>
+            
+            {% endif %}
+
+            {% if messages %}
+                <div class="bg-blue-100 border-t border-b border-blue-500 text-blue-700 px-4 py-3" role="alert">
+                {% for message in messages %}
+                    <p class="font-bold">{{ message.tags|upper }}</p>
+                    <p>{{ message }}</p>
+                {% endfor %}
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+{% endblock %}

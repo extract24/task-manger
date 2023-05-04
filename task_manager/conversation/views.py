@@ -49,7 +49,7 @@ def send_messages(request, pk):
     context = {
         'form': form,
         'task': task,
-        'messages': send_messages(request, task)
+        'messages': message_check(request, task)
     }
 
     return render(request, 'conversation/task_messages.html', context)
@@ -71,7 +71,7 @@ def inbox(request):
     latest_conversations = []
     for task_id in task_ids:
         conversation = conversations.filter(task_id=task_id['task']).first()
-    latest_conversations.append(conversation)
+        latest_conversations.append(conversation)
 
     
 

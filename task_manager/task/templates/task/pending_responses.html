@@ -1,0 +1,44 @@
+{% extends 'core/base.html' %}
+
+{% block title %} Response {% endblock %}
+
+{% block content %}
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-4"> Tasks that need response </h1>
+
+        <div class="bg-white shadow overflow-hidden rounded-md">
+            {% if tasks %}
+                {% for task in tasks %}
+                    <div class="p-4 border-b border-gray-200">
+                        <div class="flex justify-between">
+                            <h2 class="text-xl font-semibold">{{ task.title }}</h2>
+                            {% if task.response == 'P' %}
+                            <form action="{% url 'task:task_response' task.id %}" method="POST">
+                                {% csrf_token %}
+                                <button class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md" type="submit" name="response" value="accept"> Accept</button>
+                                <button class="ml-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md" type="submit" name="response" value="reject">Reject</button>
+                            </form>
+                            {% else %}
+                                <p class="text-green-600 font-semibold">Response: {{ task.get_response_display }}</p>
+                            {% endif %}
+                        </div>
+                        <p class="text-gray-600">{{ task.description }}</p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="p-4">
+                    <p class="text-gray-600">No pending tasks.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        {% if messages %}
+            <div class="bg-blue-100 border-t border-b border-blue-500 text-blue-700 px-4 py-3 mt-4" role="alert">
+                {% for message in messages %}
+                    <p class="font-bold">{{ message.tags|upper }}</p>
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

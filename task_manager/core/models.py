@@ -1,3 +1,4 @@
+from datetime import timedelta
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -21,10 +22,26 @@ class Task(models.Model):
     task_status_choices = (
         ('UN', 'Unassign'),
         ('PR', 'In progress'),
+        ('AT', 'Task Accepted'),
         ('CO', 'Completed'),
     )
+    response_choice = (
+        ('P', 'Pending'),
+        ('R', 'Rejected'),
+        ('A', 'Accepted'),
+    )
+
+    response = models.CharField(choices=response_choice, default='P', max_length=1, blank=True, null=True)
 
     task_status = models.CharField(choices=task_status_choices, default="UN", max_length=2, blank=True, null=True)
+
+    def duration(self):
+
+        if self.start_date is not None and self.completed_date is not None:
+            return self.completed_date - self.start_date
+        
+        else:
+            return timedelta()
 
     def __str__(self):
         return f'{self.name} created by {self.created_by} at {self.created_at}'

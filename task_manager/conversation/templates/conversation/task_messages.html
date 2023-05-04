@@ -4,6 +4,13 @@
 {% block content %}
     <h1 class="text-2xl font-bold mb-4">Task Messages</h1>
     <p class="mb-4"><strong>Task:</strong> {{ task.name }}</p>
+
+    {% if task.created_by == request.user %}
+        <p class="mb-4"><strong>Reciever:</strong> {{ task.assign_user }}</p>
+    {% elif task.assign_user == request.user %}
+        <p class="mb-4"><strong>Reciever:</strong> {{ task.created_by }}</p>
+    {% endif %}
+
     <div class="messages w-1/6">
         {% for message in messages %}
             <div class="message p-4 rounded-xl mb-4 {% if message.sender == request.user %} bg-green-500 text-white place-self-end{% else %} bg-gray-200 text-gray-800{% endif %}">
